@@ -3,10 +3,13 @@ import { NavigationContext } from "../../lib/context/NavigationProvider"
 import { cn } from "@/lib/utils"
 import { Button } from "./ui/button"
 import { PlusIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const Sidebar = () => {
   const { isMobileNavOpen, setIsMobileNavOpen, closeMobileNav } =
     use(NavigationContext)
+
+  const router = useRouter()
 
   // TODO
   // const createChat = useQuery(api.chat.create())
