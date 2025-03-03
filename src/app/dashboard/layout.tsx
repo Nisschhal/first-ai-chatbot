@@ -1,19 +1,22 @@
 "use client"
 import { Authenticated } from "convex/react"
-import React from "react"
 import Header from "@/components/Header"
+import { NavigationProvider } from "../../../lib/context/NavigationProvider"
+import Sidebar from "@/components/Sidebar"
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex h-screen">
-      <Authenticated>
-        <h1>Sidebar</h1>
-      </Authenticated>
+    <NavigationProvider>
+      <div className="flex h-screen">
+        <Authenticated>
+          <Sidebar />
+        </Authenticated>
 
-      <div className="flex-1 bg-red-50">
-        <Header />
-        <main className="p-4">{children}</main>
+        <div className="flex-1 bg-red-50">
+          <Header />
+          <main className="p-4">{children}</main>
+        </div>
       </div>
-    </div>
+    </NavigationProvider>
   )
 }
 

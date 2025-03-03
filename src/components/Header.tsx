@@ -1,9 +1,14 @@
-import React from "react"
+import React, { use } from "react"
 import { Button } from "./ui/button"
 import { HamIcon, Menu } from "lucide-react"
 import { UserButton } from "@clerk/nextjs"
+import { NavigationContext } from "../../lib/context/NavigationProvider"
 
 const Header = () => {
+  // get the function from NavigationContext
+  const { setIsMobileNavOpen, isMobileNavOpen, closeMobileNav } =
+    use(NavigationContext)
+  console.log(isMobileNavOpen)
   return (
     <header className="border-b border-gray-200/50 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
       <div className="flex items-center justify-between px-4 py-3">
@@ -11,7 +16,7 @@ const Header = () => {
           <Button
             variant={"ghost"}
             size={"icon"}
-            // onClick={() => setIsMobileNavOpen((prev) => !prev)}
+            onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
             className="md:hidden text-gray-500 hover:text-gray-600 hover:bg-gray-100/50"
           >
             <Menu className="h-5 w-5" />
