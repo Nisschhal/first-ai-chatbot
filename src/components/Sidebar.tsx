@@ -18,6 +18,7 @@ const Sidebar = () => {
 
   const handleNewChatClick = () => {
     // newChat()
+    // router.push('/newchat')
   }
   return (
     <>
