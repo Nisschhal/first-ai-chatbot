@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import { useMutation, useQuery } from "convex/react"
 import { api } from "../../convex/_generated/api"
 import { Id } from "../../convex/_generated/dataModel"
+import ChatRow from "./ChatRow"
 
 const Sidebar = () => {
   const { isMobileNavOpen, setIsMobileNavOpen, closeMobileNav } =
@@ -21,7 +22,7 @@ const Sidebar = () => {
 
   const handleNewChatClick = async () => {
     const chatId = await newChat({ title: "New Chat" })
-    router.push(`/dashboard/${chatId}`)
+    router.push(`/dashboard/chat/${chatId}`)
     closeMobileNav()
   }
 
@@ -51,7 +52,7 @@ const Sidebar = () => {
         )}
       >
         {/* New Chat Button */}
-        <div className="p-4 border-b border-gray-200/50">
+        <div className="p-2.5 border-b border-gray-200/50">
           <Button
             onClick={() => handleNewChatClick()}
             className="w-full bg-white hover:bg-gray-50 text-gray-700 border border-gray-200/50 shadow-sm hover:shadow transition-all duration-200"
@@ -60,9 +61,9 @@ const Sidebar = () => {
           </Button>
         </div>
         {/* Content: List of Past Chats */}
-        <div className="flex-1 overflow-y-auto space-y-2.5 scrollbar-thin scrollbar-thumb-gray-200/50 scrollbar-track-gray-50">
+        <div className="flex-1 overflow-y-auto space-y-2.5 scrollbar-thin scrollbar-thumb-gray-200/50 scrollbar-track-gray-50 p-4">
           {chats?.map((chat) => (
-            <ChatRow key={chat} onDelete={handleDeleteChat} />
+            <ChatRow key={chat._id} chat={chat} onDelete={handleDeleteChat} />
           ))}
         </div>
       </div>

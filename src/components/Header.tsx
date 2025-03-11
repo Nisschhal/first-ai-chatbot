@@ -1,6 +1,6 @@
 import React, { use } from "react"
 import { Button } from "./ui/button"
-import { HamIcon, Menu } from "lucide-react"
+import { Menu } from "lucide-react"
 import { UserButton } from "@clerk/nextjs"
 import { NavigationContext } from "../../lib/context/NavigationProvider"
 
