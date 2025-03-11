@@ -4,6 +4,9 @@ import { cn } from "@/lib/utils"
 import { Button } from "./ui/button"
 import { PlusIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useMutation, useQuery } from "convex/react"
+import { api } from "../../convex/_generated/api"
+import { Id } from "../../convex/_generated/dataModel"
 
 const Sidebar = () => {
   const { isMobileNavOpen, setIsMobileNavOpen, closeMobileNav } =
@@ -11,15 +14,26 @@ const Sidebar = () => {
 
   const router = useRouter()
 
-  // TODO
-  // const createChat = useQuery(api.chat.create())
-  // const newChat = useMutation(createChat)
-  // const deleteChat = useMutation(deleteChat)
+  // TODO: getall chats, delete chat, create chat
+  const chats = useQuery(api.chats.listChats)
+  const newChat = useMutation(api.chats.createChat)
+  const deleteChat = useMutation(api.chats.deleteChat)
 
-  const handleNewChatClick = () => {
-    // newChat()
-    // router.push('/newchat')
+  const handleNewChatClick = async () => {
+    const chatId = await newChat({ title: "New Chat" })
+    router.push(`/dashboard/${chatId}`)
+    closeMobileNav()
   }
+
+  const handleDeleteChat = async (chatId: Id<"chats">) => {
+    await deleteChat({ id: chatId })
+
+    // only redirect to dashboard if url still has the deleted chatID
+    if (window.location.pathname.includes(chatId)) {
+      router.push("/dashboard")
+    }
+  }
+
   return (
     <>
       {/* Background Overlay for Mobile Nav */}
@@ -47,7 +61,9 @@ const Sidebar = () => {
         </div>
         {/* Content: List of Past Chats */}
         <div className="flex-1 overflow-y-auto space-y-2.5 scrollbar-thin scrollbar-thumb-gray-200/50 scrollbar-track-gray-50">
-          {/* {chats.map((chat) => (<ChatRow key={chat} onDelete={handleDeleteChat} />))} */}
+          {chats?.map((chat) => (
+            <ChatRow key={chat} onDelete={handleDeleteChat} />
+          ))}
         </div>
       </div>
     </>
