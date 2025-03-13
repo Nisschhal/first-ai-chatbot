@@ -13,7 +13,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
         <div className="flex-1 ">
           <Header />
-          <main className="p-4">{children}</main>
+          <main className="">{children}</main>
         </div>
       </div>
     </NavigationProvider>

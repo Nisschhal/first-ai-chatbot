@@ -29,7 +29,7 @@ const ChatPage = async ({ params }: ChatPageProps) => {
     })
 
     return (
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden ">
         <ChatInterface chatId={chatId} initalMessage={initalMessage} />
       </div>
     )

@@ -17,25 +17,35 @@ const ChatInterface = ({ chatId, initalMessage }: ChatInterfaceProps) => {
 
   const [isLoading, setLoading] = useState(false)
 
+  // streamResponse
+  const [streamResponse, setStreamResponse] = useState<string>("")
+
   // handle prompt
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const trimmedInput = input.trim()
+    if (!trimmedInput || isLoading) return
+
+    // after work is done reset everything
+    setLoading(true)
+    setInput("")
+    setStreamResponse("")
   }
   return (
-    <main className="flex flex-col h-[calc(100vh-theme(spacing.14))]">
+    <main className="flex-1 flex flex-col h-[calc(100vh-theme(spacing.16))]">
       {/* Messages container */}
       <section className=" flex-1 overflow-y-auto bg-red-50 p-2 md:p-0"></section>
 
       {/* Input form */}
-      <footer className="border-t bg-white p-4">
-        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto relative">
+      <footer className="border-t bg-white p-2">
+        <form onSubmit={handleSubmit} className=" mx-auto relative">
           <div className="relative flex items-center">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Message AI Agent..."
-              className="flex-1 py-3 px-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 bg-gray-50 placeholder:text-gray-500"
+              className="flex-1 py-3 px-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 bg-gray-50 placeholder:text-gray-500"
               disabled={isLoading}
             />
             <Button
