@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Doc, Id } from "../../convex/_generated/dataModel"
 import { Button } from "./ui/button"
 import { ArrowRight } from "lucide-react"
@@ -10,19 +10,23 @@ interface ChatInterfaceProps {
   initalMessage: Doc<"messages">[]
 }
 const ChatInterface = ({ chatId, initalMessage }: ChatInterfaceProps) => {
-  // state for messages, input and loading
+  // state for user messages, input and loading
   const [messages, setMessages] = useState<Doc<"messages">[]>(initalMessage)
 
   const [input, setInput] = useState<string>("")
 
   const [isLoading, setLoading] = useState(false)
 
-  // streamResponse
+  // streamResponse from server/ai
   const [streamResponse, setStreamResponse] = useState<string>("")
+
+  // MessageEnd Ref
+  const messageEndRef = useRef<HTMLDivElement>(null)
 
   // handle prompt
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    // trim the user input
     const trimmedInput = input.trim()
     if (!trimmedInput || isLoading) return
 
@@ -30,11 +34,44 @@ const ChatInterface = ({ chatId, initalMessage }: ChatInterfaceProps) => {
     setLoading(true)
     setInput("")
     setStreamResponse("")
+
+    // Optimistic message for better UX, add user input immediately on interface as user hit enter
+    const optimisticUserMessage: Doc<"messages"> = {
+      _id: crypto.randomUUID().toString(),
+      chatId,
+      content: trimmedInput,
+      role: "user",
+      createdAt: Date.now(),
+    } as Doc<"messages">
+
+    setMessages((prev) => [...prev, optimisticUserMessage])
+    setLoading(false)
   }
+
+  // move the view to message end when ever message is added
+  useEffect(() => {
+    messageEndRef.current?.scrollIntoView({ behavior: "instant" })
+  }, [messages, streamResponse])
+
   return (
     <main className="flex-1 flex flex-col h-[calc(100vh-theme(spacing.16))]">
       {/* Messages container */}
-      <section className=" flex-1 overflow-y-auto bg-red-50 p-2 md:p-0"></section>
+      <section className=" flex-1 overflow-y-auto bg-red-50 p-2 md:p-0">
+        <div>
+          {/* Message */}
+          {messages.map((message, index) => (
+            <div
+              key={message._id}
+              ref={index === messages.length - 1 ? messageEndRef : null}
+            >
+              {message.content}
+            </div>
+          ))}
+
+          {/* Message End Part*/}
+          <div ref={messageEndRef} />
+        </div>
+      </section>
 
       {/* Input form */}
       <footer className="border-t bg-white p-2">
