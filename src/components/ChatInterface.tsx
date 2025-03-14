@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { Doc, Id } from "../../convex/_generated/dataModel"
 import { Button } from "./ui/button"
 import { ArrowRight } from "lucide-react"
+import { ChatRequestBody } from "@/lib/types"
 
 interface ChatInterfaceProps {
   chatId: Id<"chats">
@@ -24,7 +25,7 @@ const ChatInterface = ({ chatId, initalMessage }: ChatInterfaceProps) => {
   const messageEndRef = useRef<HTMLDivElement>(null)
 
   // handle prompt
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // trim the user input
     const trimmedInput = input.trim()
@@ -45,7 +46,56 @@ const ChatInterface = ({ chatId, initalMessage }: ChatInterfaceProps) => {
     } as Doc<"messages">
 
     setMessages((prev) => [...prev, optimisticUserMessage])
-    setLoading(false)
+
+    // Track compelete response from the server before saving to db
+    const isResponseCompelete = false
+
+    // Start streaming response
+    try {
+      // prepare request body
+      const requestBody: ChatRequestBody = {
+        messages: messages.map((message) => ({
+          role: message.role,
+          content: message.content,
+        })),
+        newMessage: trimmedInput,
+        chatId,
+      }
+
+      // Initialize SSE connections
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      })
+
+      // Check for response errors
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      if (!response.body) {
+        throw new Error("No response body")
+      }
+
+      // --- -Handle Stream Response
+      // Extract the response data and hanle the stream response
+      const data = await response.json()
+      const streamResponse = data.message
+    } catch (error) {
+      console.error("Error sending message", error)
+      // Remove the optimistic user message if there was an error
+      setMessages((prev) =>
+        prev.filter((message) => message._id !== optimisticUserMessage._id)
+      )
+
+      // show the error message to user instead of streamed Response
+      setStreamResponse("error")
+    } finally {
+      setLoading(false)
+    }
   }
 
   // move the view to message end when ever message is added
