@@ -1,5 +1,10 @@
 import { Id } from "../../convex/_generated/dataModel"
 
+// SSE Constants
+export const SSE_DATA_PREFIX = "data:"
+export const SSE_LINE_DELIMITER = "\n\n"
+export const SSE_DONE_MESSAGE = "[DONE]"
+
 // message role
 export type MessageRole = "user" | "assistant"
 
@@ -29,7 +34,6 @@ export enum StreamMessageType {
 // BaseStreamMessage to inherit/extend upon
 export interface BaseStreamMessage {
   type: StreamMessageType
-  data: string
 }
 
 // interface for all possible stream message types with a body

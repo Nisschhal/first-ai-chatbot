@@ -63,7 +63,7 @@ const ChatInterface = ({ chatId, initalMessage }: ChatInterfaceProps) => {
       }
 
       // Initialize SSE connections
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/chat/stream", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
