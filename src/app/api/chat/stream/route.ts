@@ -62,6 +62,7 @@ export async function POST(req: Request) {
           chatId,
           content: newMessage,
         })
+        
       } catch (error) {
         console.log("Error in chat API in start streaming: ", error)
         return NextResponse.json(

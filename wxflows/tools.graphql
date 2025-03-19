@@ -1,0 +1,77 @@
+extend type Query {
+  wikipediaTool: TC_GraphQL
+    @supplies(query: "tc_tools")
+    @materializer(
+      query: "tc_graphql_tool"
+      arguments: [
+        { name: "name", const: "wikipedia" }
+        { name: "description", const: "Retrieve information from Wikipedia." }
+        { name: "fields", const: "search|page" }
+      ]
+    )
+  google_books: TC_GraphQL
+    @supplies(query: "tc_tools")
+    @materializer(
+      query: "tc_graphql_tool"
+      arguments: [
+        { name: "name", const: "google_books" }
+        {
+          name: "description"
+          const: "Retrieve information from Google Books. Find books by search string, for example to search for Daniel Keyes 'Flowers for Algernon' use q: 'intitle:flowers+inauthor:keyes'"
+        }
+        { name: "fields", const: "books|book" }
+      ]
+    )
+  dummy_customers: TC_GraphQL
+    @supplies(query: "tc_tools")
+    @materializer(
+      query: "tc_graphql_tool"
+      arguments: [
+        { name: "name", const: "dummy_customers" }
+        {
+          name: "description"
+          const: "Use the dummyCustomers tool to: (1) fetch all customer data (names, emails, addresses, orders) from the url via dummyCustomersQuery and return it in JSON format; then (2) fetch all details (name, email, address, orders) for customer id: 1 from the url followed by id  /1 via dummyCustomersQuery and return it in JSON format if the url ends with /1."
+        }
+        { name: "fields", const: "dummyCustomersQuery" }
+      ]
+    )
+  dummy_todos: TC_GraphQL
+    @supplies(query: "tc_tools")
+    @materializer(
+      query: "tc_graphql_tool"
+      arguments: [
+        { name: "name", const: "dummy_todos" }
+        {
+          name: "description"
+          const: "Use the dummyTodos tool to: (1) fetch all todos (id, title, userId, completed) from the url via dummyTodosQuery and return it in JSON format; then (2) fetch all details (title, userId, completed) for todo id: 1 from the url followed by /1 via dummyTodosQuery and return it in JSON format if the url ends with /1."
+        }
+        { name: "fields", const: "dummyTodosQuery" }
+      ]
+    )
+  dummy_comments: TC_GraphQL
+    @supplies(query: "tc_tools")
+    @materializer(
+      query: "tc_graphql_tool"
+      arguments: [
+        { name: "name", const: "dummy_comments" }
+        {
+          name: "description"
+          const: "Use the dummyComments tool to: (1) fetch all comments (id, name, email, likes, postId, body) from the url via dummyCommentsQuery and return it in JSON format; then (2) fetch all details (title, userId, completed) for comment id: 1 from the url followed by /1 via dummyTodosQuery and return it in JSON format if the url ends with /1."
+        }
+        { name: "fields", const: "dummyCommentsQuery" }
+      ]
+    )
+  youtube_transcript: TC_GraphQL
+    @supplies(query: "tc_tools")
+    @materializer(
+      query: "tc_graphql_tool"
+      arguments: [
+        { name: "name", const: "youtube_transcript" }
+        {
+          name: "description"
+          const: "Retrieve transcripts for a given YouTube video. The videoUrl should be in the format https://www.youtube.com/watch?v=VIDEO_ID"
+        }
+        { name: "fields", const: "transcript" }
+      ]
+    )
+}
