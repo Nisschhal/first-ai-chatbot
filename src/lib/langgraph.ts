@@ -20,6 +20,7 @@ import {
   START,
   END,
   MessagesAnnotation,
+  MemorySaver,
 } from "@langchain/langgraph"
 
 import {
@@ -34,6 +35,7 @@ import {
   SystemMessage,
   trimMessages,
 } from "@langchain/core/messages"
+import { threadId } from "worker_threads"
 
 // Trim the message to manage conversation history
 const trimmer = trimMessages({
@@ -93,6 +95,7 @@ const createWorkflow = () => {
       // Create the prompt template with system message and messages placeholder
       const promptTemplate = ChatPromptTemplate.fromMessages([
         new SystemMessage(systemContent, {
+          // cache the system message
           cache_control: { type: "ephemeral" }, //  Set a cache breakpoint (max number of breakpoints is 4)
         }),
         new MessagesPlaceholder("messages"),
@@ -118,7 +121,31 @@ const createWorkflow = () => {
   return stateGraph
 }
 
-export async function submitQuestion(messages: BaseMessage[], chatId: string) {}
+export async function submitQuestion(messages: BaseMessage[], chatId: string) {
+  const workflow = createWorkflow() // get the graph
+
+  // Create a checkpoint to save the state of the conversation
+  const checkpointer = new MemorySaver()
+  const app = workflow.compile({ checkpointer })
+
+  console.log("message=---", messages)
+
+  // Run the graph and stream
+  const stream = await app.streamEvents(
+    {
+      messages,
+    },
+    {
+      version: "v2",
+      configurable: {
+        threadId: chatId,
+      },
+      streamMode: "messages",
+      runId: chatId,
+    }
+  )
+  return stream
+}
 
 // Define the function that determines whether to continue or not
 function shouldContinue(state: typeof MessagesAnnotation.State) {
