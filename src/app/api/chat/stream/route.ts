@@ -9,6 +9,9 @@ import {
 import { auth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import { api } from "../../../../../convex/_generated/api"
+import { AIMessage, HumanMessage, ToolMessage } from "@langchain/core/messages"
+import { send } from "../../../../../convex/messages"
+import { submitQuestion } from "@/lib/langgraph"
 
 // post request for the client
 export async function POST(req: Request) {
@@ -62,15 +65,87 @@ export async function POST(req: Request) {
           chatId,
           content: newMessage,
         })
-        
+
+        // Convert message to LangChain format
+        const langChainMessages = [
+          ...messages.map((msg) =>
+            msg.role === "user"
+              ? new HumanMessage(msg.content)
+              : new AIMessage(msg.content)
+          ),
+          new HumanMessage(newMessage),
+        ]
+
+        try {
+          // Create the event stream
+          const eventStream = await submitQuestion(langChainMessages, chatId)
+
+          // Process the events
+          for await (const event of eventStream) {
+            console.log("Event:", event)
+            if (event.event === "on_chat_model_stream") {
+              // when new chunk is created for user
+              const token = event.data.chunk
+
+              if (token) {
+                // Access the text layer property from the AIMessageChunk
+                const text = token.content.at(0)?.["text"]
+
+                if (text) {
+                  // Send token message to frontend
+                  await sendSSEmessage(writer, {
+                    type: StreamMessageType.Token,
+                    token: text,
+                  })
+                }
+              }
+            } else if (event.event === "on_tool_start") {
+              // when tool is called
+              await sendSSEmessage(writer, {
+                type: StreamMessageType.ToolStart,
+                tool: event.name || "unknown",
+                input: event.data.input,
+              })
+            } else if (event.event === "on_tool_end") {
+              // when tool is finished
+              const toolMessage = new ToolMessage(event.data.output)
+
+              await sendSSEmessage(writer, {
+                type: StreamMessageType.ToolEnd,
+                tool: toolMessage.lc_kwargs.name || "unknown",
+                output: event.data.output,
+              })
+            }
+
+            // Send completion message without storing the response
+            await sendSSEmessage(writer, {
+              type: StreamMessageType.Done,
+            })
+          }
+        } catch (streamError) {
+          // Error in event stream while submitting response
+          console.log("Error in chat API in start streaming: ", streamError)
+          await sendSSEmessage(writer, {
+            type: StreamMessageType.Error,
+            error:
+              streamError instanceof Error
+                ? streamError.message
+                : "Stream processed failed",
+          })
+        }
       } catch (error) {
-        console.log("Error in chat API in start streaming: ", error)
-        return NextResponse.json(
-          {
-            error: "Failed to process chat request",
-          } as const,
-          { status: 500 }
-        )
+        // Error in Over all stream
+        console.log("Error in  stream: ", error)
+        await sendSSEmessage(writer, {
+          type: StreamMessageType.Error,
+          error: error instanceof Error ? error.message : "Unknown error",
+        })
+      } finally {
+        try {
+          await writer.close()
+        } catch (error) {
+          console.log("Error in closing writer: ", error)
+        }
       }
     }
 
