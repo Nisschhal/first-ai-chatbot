@@ -24,13 +24,13 @@ const ChatPage = async ({ params }: ChatPageProps) => {
     const convexClient = getConvexClient()
 
     // get messages
-    const initalMessage = await convexClient.query(api.messages.getmessages, {
+    const initialMessage = await convexClient.query(api.messages.getmessages, {
       chatId,
     })
 
     return (
       <div className="flex-1 overflow-hidden ">
-        <ChatInterface chatId={chatId} initalMessage={initalMessage} />
+        <ChatInterface chatId={chatId} initialMessage={initialMessage} />
       </div>
     )
   } catch (error) {

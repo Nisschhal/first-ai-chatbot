@@ -35,6 +35,7 @@ export async function POST(req: Request) {
     // store in db convex
     const convexClient = getConvexClient()
 
+    // ----- Stream Setup
     // Create stream with larger queue strategy for better performance
     // tranformer is the function that is called for each chunk of data and modifes it and sends it to the writer for users to receive
     const stream = new TransformStream({}, { highWaterMark: 1024 })
@@ -52,6 +53,7 @@ export async function POST(req: Request) {
       },
     })
 
+    // ---- start the stream
     const startStream = async () => {
       try {
         // Stream will be implemented here
@@ -116,12 +118,13 @@ export async function POST(req: Request) {
                 output: event.data.output,
               })
             }
-
-            // Send completion message without storing the response
-            await sendSSEmessage(writer, {
-              type: StreamMessageType.Done,
-            })
           }
+
+          // Send completion message without storing the response
+          // --- Done message to end stream
+          await sendSSEmessage(writer, {
+            type: StreamMessageType.Done,
+          })
         } catch (streamError) {
           // Error in event stream while submitting response
           console.log("Error in chat API in start streaming: ", streamError)

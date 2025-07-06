@@ -54,12 +54,12 @@ import {
 } from "./types"
 
 // Factory function to create an SSE parser
-export const createSSEParse = () => {
+export const createSSEParser = () => {
   // Buffer to hold incomplete lines between chunks
-  let buffer = " "
+  let buffer = ""
 
   // The main parser function: takes a chunk of SSE data and returns parsed messages
-  const parser = (chunk: string): StreamMessage[] => {
+  const parse = (chunk: string): StreamMessage[] => {
     // Combine leftover buffer with new chunk and split into lines
     const line = (buffer + chunk).split("\n")
     // Save the last (possibly incomplete) line back to buffer for next time
@@ -102,6 +102,6 @@ export const createSSEParse = () => {
 
   // Return the parser function so it can be used elsewhere
   return {
-    parser,
+    parse,
   }
 }
